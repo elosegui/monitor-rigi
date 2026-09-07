@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Impacto del RIGI · Empleo y provincias</title>
+<meta name="description" content="Seguimiento del RIGI y su impacto esperado sobre el empleo y las provincias en el primer año. Modelo insumo-producto provincial.">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#1F4E79; --green:#1F6E43; --ink:#1a2230; --muted:#5b6675;
+  --line:#e2e8f0; --bg:#f6f8fb; --card:#ffffff; --formal:#1F6E43; --informal:#e0a458;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+a{color:var(--navy)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header.site{background:linear-gradient(135deg,#17324f,#1F4E79);color:#fff;padding:6px 0}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:10px 0}
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:.2px}
+.nav nav a{color:#dbe6f3;text-decoration:none;margin-left:18px;font-size:.92rem}
+.nav nav a:hover{color:#fff}
+.hero{background:linear-gradient(135deg,#1F4E79,#1F6E43);color:#fff;padding:34px 0 30px}
+.hero h1{margin:0 0 8px;font-size:1.85rem;line-height:1.2}
+.hero p{margin:0;max-width:720px;color:#e7eef6;font-size:1.02rem}
+.updated{display:inline-block;margin-top:14px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  padding:4px 12px;border-radius:999px;font-size:.82rem}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:24px}
+.stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:14px}
+.stat .n{font-size:1.5rem;font-weight:700;line-height:1.1}
+.stat .l{font-size:.78rem;color:#dbe6f3;margin-top:4px}
+section{padding:34px 0;border-bottom:1px solid var(--line)}
+h2{color:var(--navy);font-size:1.35rem;margin:0 0 6px}
+h2 .sub{display:block;font-size:.85rem;color:var(--muted);font-weight:400;margin-top:3px}
+.grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:start}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card .n{font-size:1.5rem;font-weight:700;color:var(--navy)}
+.card .l{font-size:.82rem;color:var(--muted)}
+.card.g .n{color:var(--green)}
+.legend{display:flex;gap:16px;font-size:.85rem;margin:10px 0 4px}
+.dot{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:middle}
+table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{background:var(--navy);color:#fff;cursor:pointer;font-weight:600;font-size:.82rem;user-select:none;white-space:nowrap}
+thead th:hover{background:#28598a}
+tbody tr:nth-child(even){background:#f4f7fb}
+tbody tr:hover{background:#eaf1f8}
+tfoot td{font-weight:700;background:#fff2e8}
+.bar{height:9px;border-radius:5px;background:var(--formal);display:inline-block;vertical-align:middle}
+.mapwrap{text-align:center}
+.mapwrap img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:12px}
+.note ul{margin:8px 0}
+.note li{margin:5px 0}
+.btn{display:inline-block;background:var(--navy);color:#fff;text-decoration:none;padding:11px 20px;border-radius:9px;font-weight:600;margin-top:8px}
+.btn:hover{background:#28598a}
+.btn.green{background:var(--green)} .btn.green:hover{background:#2a8a56}
+.tag{display:inline-block;background:#eef3f9;color:var(--navy);border:1px solid #d5e1ef;border-radius:6px;padding:2px 8px;font-size:.76rem;margin-right:6px}
+footer{background:#17324f;color:#cdd9e8;padding:26px 0;font-size:.86rem}
+footer a{color:#9fc0e6}
+.mut{color:var(--muted);font-size:.9rem}
+.chartbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+@media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="site"><div class="wrap nav">
+  <div class="brand">Monitor de Impacto del RIGI</div>
+  <nav>
+    <a href="#impacto">Impacto 1er año</a>
+    <a href="#ranking">Provincias</a>
+    <a href="#mapa">Mapa</a>
+    <a href="#nota">Nota técnica</a>
+  </nav>
+</div></header>
+
+<div class="hero"><div class="wrap">
+  <h1>El RIGI y su impacto esperado sobre el empleo y las provincias</h1>
+  <p>Seguimiento de los proyectos adheridos al Régimen de Incentivo a las Grandes Inversiones y estimación de su efecto de corto plazo (primer año) sobre el producto, el valor agregado y el empleo —formal e informal— con apertura provincial, mediante un modelo insumo-producto provincial.</p>
+  <div class="updated">Autor: <b>Pedro Elosegui (IIEP-UBA)</b> · Última actualización: <b id="upd"></b> · Base: Monitor RIGI–IIEP · Se actualiza cada 15 días</div>
+  <div class="stats" id="heroStats"></div>
+</div></div>
+
+<section id="impacto"><div class="wrap">
+  <h2>Impacto esperado del primer año <span class="sub">Sobre la inversión comprometida de Año 1 de los proyectos aprobados</span></h2>
+  <div class="grid2">
+    <div>
+      <div class="cards">
+        <div class="card"><div class="n" id="c_prod"></div><div class="l">Producto (USD millones)</div></div>
+        <div class="card g"><div class="n" id="c_va"></div><div class="l">Valor agregado (USD millones)</div></div>
+        <div class="card"><div class="n" id="c_emp"></div><div class="l">Empleo total (puestos)</div></div>
+        <div class="card g"><div class="n" id="c_for"></div><div class="l">Empleo formal (<span id="c_pfor"></span>%)</div></div>
+      </div>
+      <p class="mut" style="margin-top:14px">El empleo se descompone en <b id="t_dir"></b> directos, <b id="t_ind"></b> indirectos y <b id="t_indu"></b> inducidos. La banda por sensibilidad del multiplicador (μ entre 1,30 y 1,50) va de <b id="t_lo"></b> a <b id="t_hi"></b> puestos. El producto y el VA no dependen del multiplicador.</p>
+      <p class="mut">Shock: <b>USD <span id="t_shock"></span> M</b> de inversión comprometida en Año 1 (de USD <span id="t_anun"></span> M anunciados en <span id="t_n"></span> proyectos aprobados). El impacto del primer año capta la <i>obra</i>, no la producción futura de los yacimientos.</p>
+    </div>
+    <div class="chartbox">
+      <div style="font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:6px">Composición del empleo</div>
+      <canvas id="donut" height="220"></canvas>
+    </div>
+  </div>
+</div></section>
+
+<section id="ranking"><div class="wrap">
+  <h2>Ranking por provincia <span class="sub">Empleo del primer año, formal e informal (clic en los encabezados para ordenar)</span></h2>
+  <div class="grid2">
+    <div class="chartbox">
+      <div class="legend"><span><span class="dot" style="background:var(--formal)"></span>Formal</span><span><span class="dot" style="background:var(--informal)"></span>Informal</span></div>
+      <canvas id="barchart" height="320"></canvas>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="tbl">
+        <thead><tr>
+          <th data-k="prov">Provincia</th>
+          <th data-k="tot">Empleo</th>
+          <th data-k="formal">Formal</th>
+          <th data-k="informal">Inform.</th>
+          <th data-k="pfor">% form.</th>
+          <th data-k="pstock">% empleo prov.</th>
+        </tr></thead>
+        <tbody></tbody>
+        <tfoot><tr><td>TOTAL</td><td id="f_tot"></td><td id="f_for"></td><td id="f_inf"></td><td id="f_pf"></td><td></td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div></section>
+
+<section id="mapa"><div class="wrap">
+  <h2>Mapa del empleo por provincia <span class="sub">Total generado en el primer año; en cada recuadro, apertura formal / informal</span></h2>
+  <div class="mapwrap"><img src="assets/RIGI_mapa_empleo_iiep.png" alt="Mapa del empleo RIGI por provincia"></div>
+</div></section>
+
+<section id="nota"><div class="wrap">
+  <h2>Nota técnica <span class="sub">Cómo se calcula el impacto</span></h2>
+  <div class="grid2">
+    <div class="note">
+      <p><span class="tag">Modelo</span> MIP Provincial Argentina 2023 (Michelena, Herrera Gómez y Elosegui) — 24 provincias × 20 sectores. Efectos directos, indirectos e inducidos.</p>
+      <ul>
+        <li><b>Shock:</b> inversión comprometida de Año 1 (IIEP), descompuesta por proyecto en obra civil, equipo nacional, servicios e importado (este último se fuga).</li>
+        <li><b>Propagación:</b> inversa de Leontief L=(I−A)⁻¹; el VA se reporta en dólares, por lo que el tipo de cambio se cancela.</li>
+        <li><b>Empleo:</b> anclado a parámetros de obra (el empleo bruto de la matriz sobreestima ~15×); indirecto e inducido con multiplicadores acotados y banda de sensibilidad.</li>
+        <li><b>Inducido:</b> localizado con la matriz de comercio interprovincial; consumo de hogares según ENGHo.</li>
+        <li><b>Formalidad:</b> ajustada por provincia y sector (empleo registrado / total).</li>
+      </ul>
+      <a class="btn" href="assets/nota_metodologica_RIGI.pdf" target="_blank">Descargar nota metodológica (PDF)</a>
+    </div>
+    <div class="note">
+      <p class="mut"><b>Alcance y límites.</b> Es un ejercicio de demanda en equilibrio parcial: supone estructura productiva y precios relativos de 2023, oferta elástica y ausencia de desplazamiento (<i>crowding-out</i>). Estima el primer año (fase de obra), no la producción futura ni el impacto fiscal o de divisas. Los proyectos en evaluación se consideran potencial, no impacto corriente.</p>
+      <p class="mut"><b>Fuentes.</b> Monitor RIGI–IIEP (inversión comprometida por proyecto); <b>MIP Provincial Argentina 2023</b> (Michelena, G., Herrera Gómez, M. y Elosegui, P.); ENGHo 2017-18; matriz de comercio interprovincial; tasas de formalidad por provincia y sector.</p>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <b>Monitor de Impacto del RIGI</b> — Pedro Elosegui (IIEP-UBA), sobre datos del Monitor RIGI–IIEP y la MIP provincial 2023.<br>
+  El sitio y las estimaciones se actualizan cada 15 días con la llegada de nuevos datos. Última actualización: <span id="updf"></span>.<br>
+  <span class="mut" style="color:#9fb2ca">Uso público con fines analíticos. Las estimaciones son de impacto potencial de corto plazo y no constituyen proyecciones oficiales.</span>
+</div></footer>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const nf=n=>Number(n).toLocaleString('es-AR');
+  const set=(id,v)=>{const e=$(id); if(e) e.textContent=v;};
+  set('upd',UPDATED); set('updf',UPDATED);
+  // hero stats
+  const hs=[['USD '+nf(AGG.shock)+' M','Inversión comprometida Año 1'],
+            [nf(AGG.producto),'Producto (USD M)'],
+            [nf(AGG.va),'Valor agregado (USD M)'],
+            [nf(AGG.empleo),'Empleo total (puestos)'],
+            [AGG.pform+'%','Empleo formal']];
+  $('heroStats').innerHTML=hs.map(s=>`<div class="stat"><div class="n">${s[0]}</div><div class="l">${s[1]}</div></div>`).join('');
+  // impact cards
+  set('c_prod',nf(AGG.producto)); set('c_va',nf(AGG.va)); set('c_emp',nf(AGG.empleo));
+  set('c_for',nf(AGG.formal)); set('c_pfor',AGG.pform);
+  set('t_dir',nf(AGG.e_dir)); set('t_ind',nf(AGG.e_ind)); set('t_indu',nf(AGG.e_indu));
+  set('t_lo',nf(AGG.banda_lo)); set('t_hi',nf(AGG.banda_hi));
+  set('t_shock',nf(AGG.shock)); set('t_anun',nf(AGG.inv_anun)); set('t_n',AGG.n_aprob);
+  // donut
+  new Chart($('donut'),{type:'doughnut',data:{labels:['Directo','Indirecto','Inducido'],
+    datasets:[{data:[AGG.e_dir,AGG.e_ind,AGG.e_indu],backgroundColor:['#1F4E79','#3f8ecc','#e0a458'],borderWidth:2,borderColor:'#fff'}]},
+    options:{plugins:{legend:{position:'bottom'}},cutout:'58%'}});
+  // tabla
+  let sortK='tot',sortDir=-1;
+  const tb=document.querySelector('#tbl tbody');
+  const fmtP=x=>x.toFixed(2).replace('.',',')+'%';
+  function render(){
+    const d=[...PROV].sort((a,b)=>(a[sortK]<b[sortK]?-1:a[sortK]>b[sortK]?1:0)*sortDir);
+    tb.innerHTML=d.map(r=>`<tr><td>${r.prov}</td><td>${nf(r.tot)}</td><td>${nf(r.formal)}</td><td>${nf(r.informal)}</td><td>${r.pfor}%</td><td>${fmtP(r.pstock)}</td></tr>`).join('');
+  }
+  document.querySelectorAll('#tbl thead th').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k; if(k===sortK)sortDir*=-1; else{sortK=k;sortDir=(k==='prov')?1:-1;} render();
+  });
+  render();
+  // totales
+  const T=PROV.reduce((a,r)=>({t:a.t+r.tot,f:a.f+r.formal,i:a.i+r.informal}),{t:0,f:0,i:0});
+  set('f_tot',nf(Math.round(T.t))); set('f_for',nf(Math.round(T.f))); set('f_inf',nf(Math.round(T.i)));
+  set('f_pf',Math.round(100*T.f/T.t)+'%');
+  // bar chart top 12
+  const top=[...PROV].sort((a,b)=>b.tot-a.tot).slice(0,12);
+  new Chart($('barchart'),{type:'bar',data:{labels:top.map(r=>r.prov),
+    datasets:[{label:'Formal',data:top.map(r=>r.formal),backgroundColor:'#1F6E43'},
+              {label:'Informal',data:top.map(r=>r.informal),backgroundColor:'#e0a458'}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},
+      scales:{x:{stacked:true,ticks:{callback:v=>nf(v)}},y:{stacked:true}}}});
+})();
+</script>
+</body>
+</html>

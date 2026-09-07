@@ -1,0 +1,162 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\definecolor{navy}{HTML}{1A1A1A}
+\titleformat{\section}{\normalfont\large\bfseries\color{navy}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalfont\normalsize\bfseries\color{navy}}{\thesubsection.}{0.5em}{}
+\titlespacing{\section}{0pt}{8pt}{4pt}
+\titlespacing{\subsection}{0pt}{6pt}{2pt}
+\setlist{nosep,leftmargin=1.4em}
+\newcommand{\USD}{\mathrm{USD}}
+\pagestyle{plain}
+
+\begin{document}
+\begin{center}
+{\Large\bfseries\color{navy} Impacto económico del RIGI: nota metodológica}\\[2pt]
+{\large Modelo insumo--producto provincial para la estimación del impacto del primer año}\\[4pt]
+{\small Estimación de producto, valor agregado y empleo (formal e informal) por provincia}\\[2pt]
+{\normalsize\bfseries Pedro Elosegui}\\[2pt]
+{\small\itshape Septiembre 2026}
+\end{center}
+\vspace{-4pt}
+\hrule
+\vspace{6pt}
+
+\section{Objetivo y fuentes}
+Se estima el impacto de corto plazo (primer año) de los proyectos adheridos al Régimen de Incentivo a las Grandes Inversiones (RIGI) sobre el producto, el valor agregado (VA) y el empleo, con apertura por provincia y por condición de formalidad. El ejercicio es de \emph{demanda}, utilizando una matriz insumo-producto por provincias (MIPR), y toma como shock de demanda la inversión efectivamente comprometida, no la anunciada.
+
+Las fuentes son: (i) \textbf{Monitor RIGI-IIEP} (\texttt{base\_completa.xlsx}), del que se toma la \emph{inversión comprometida en activos computables del Año 1} por proyecto; (ii) \textbf{MIP Provincial Argentina 2023} (Michelena, G., Herrera Gómez, M.\ y Elosegui, P.; $24$ provincias $\times\,20$ sectores $=480$ actividades), con vectores de VBP, VAB y empleo; (iii) \textbf{ENGHo 2017--18} para el patrón de consumo de los hogares; (iv) \textbf{matriz de comercio interprovincial} para la localización del efecto inducido; y (v) tasas de \textbf{formalidad} por provincia y sector (empleo registrado sobre total).
+
+\section{El shock: función de producción por proyecto}
+La inversión inicial no se imputa a un único sector. Para cada proyecto $k$, con inversión de primer año $I_k$ (en USD) localizada en el conjunto de provincias $\mathcal{P}_k$ y categoría tecnológica $c(k)$, el gasto se descompone en cuatro rubros con participaciones $(\alpha_c,\beta_c,\gamma_c,\delta_c)$, $\alpha_c+\beta_c+\gamma_c+\delta_c=1$:
+\[
+\underbrace{\alpha_c}_{\text{obra civil}}\!\to\text{Construcción},\quad
+\underbrace{\beta_c}_{\text{equipo nac.}}\!\to\text{Máq. y equipos},\quad
+\underbrace{\gamma_c}_{\text{servicios}}\!\to\text{Serv. empresariales},\quad
+\underbrace{\delta_c}_{\text{importado}}\!\to\text{fuga}.
+\]
+La porción importada $\delta_c$ no genera impacto doméstico. El vector de demanda final (en pesos del año base) reparte cada proyecto en partes iguales entre sus provincias:
+\begin{equation}
+\mathbf{f} \;=\; \tau \sum_{k}\; \frac{I_k}{|\mathcal{P}_k|}\sum_{p\in\mathcal{P}_k}\Big(\alpha_{c(k)}\,\mathbf{e}_{p,\text{con}}+\beta_{c(k)}\,\mathbf{e}_{p,\text{maq}}+\gamma_{c(k)}\,\mathbf{e}_{p,\text{serv}}\Big),
+\end{equation}
+donde $\mathbf{e}_{p,s}$ es el vector unitario que selecciona la celda (provincia $p$, sector $s$) y $\tau$ el tipo de cambio del año base (véase §7).
+
+\section{Propagación: producto y valor agregado}
+Con la matriz de coeficientes técnicos $\mathbf{A}$ (columna $j$: $a_{ij}=z_{ij}/x_j$), la inversa de Leontief $\mathbf{L}=(\mathbf{I}-\mathbf{A})^{-1}$ propaga el shock:
+\begin{equation}
+\mathbf{x}=\mathbf{L}\,\mathbf{f},\qquad
+\mathbf{x}^{\text{dir}}=\mathbf{f},\qquad
+\mathbf{x}^{\text{ind}}=\mathbf{x}-\mathbf{f},\qquad
+\mathbf{va}=\mathbf{v}\odot\mathbf{x},
+\end{equation}
+con $\mathbf{v}$ el vector de coeficientes VAB/VBP por celda. El radio espectral de $\mathbf{A}$ es $\rho(\mathbf{A})\approx0{,}44$, lo que garantiza la convergencia de $\mathbf{L}=\sum_t \mathbf{A}^t$. Se supone oferta perfectamente elástica y coeficientes técnicos fijos (sin cuellos de botella ni desplazamiento de otra producción).
+
+\section{Efecto inducido y su localización}
+El gasto de los salarios genera una ronda adicional. El VA inducido es proporcional al VA directo más indirecto (cierre tipo II parcial):
+\begin{equation}
+\mathrm{VA}^{\text{ind}}_{\text{luc}} \;=\; \kappa \,\big(\mathbf{1}^{\!\top}\mathbf{va}^{\text{dir}}+\mathbf{1}^{\!\top}\mathbf{va}^{\text{ind}}\big),\qquad \kappa=0{,}353.
+\end{equation}
+Su reparto \emph{sectorial} usa el patrón de consumo de los hogares $\mathbf{s}$ (ENGHo, que excluye administración pública), y su reparto \emph{provincial} usa la matriz de comercio interprovincial fila-normalizada $\mathbf{T}$ (destino $\times$ origen): los salarios cobrados en la provincia de destino se gastan en bienes producidos según $\mathbf{T}$. Si $\mathbf{w}$ es el ingreso por provincia de destino, el peso por provincia de \emph{producción} es $\mathbf{p}^{\text{prod}}=\mathbf{w}^{\!\top}\mathbf{T}$, y el consumo inducido $\mathbf{c}\propto \mathbf{p}^{\text{prod}}\otimes\mathbf{s}$ se propaga nuevamente por $\mathbf{L}$, escalado para reproducir $\mathrm{VA}^{\text{ind}}_{\text{luc}}$. La retención local promedio es $\sim\!38\%$ (Buenos Aires $\sim\!73\%$).
+
+\section{Empleo: anclaje en lugar de \texorpdfstring{$\mathbf{e}^{\top}\mathbf{L}$}{e'L}}
+El empleo \textbf{no} se obtiene aplicando el vector de coeficientes de empleo a la producción ($\mathbf{e}^{\top}\mathbf{L}\mathbf{f}$), porque ese cálculo sobreestima el empleo $\sim\!15\times$ (véase Anexo B). En cambio:
+\begin{align}
+E^{\text{dir}} &= \sum_k \frac{I_k}{|\mathcal{P}_k|}\big(\lambda^{o}_{c(k)}+\lambda^{p}_{c(k)}\big), &&\text{(anclado por intensidades de obra $\lambda^o$ y operación $\lambda^p$)}\\
+E^{\text{ind}} &= (\mu-1)\,E^{\text{dir}}, && \mu=1{,}3949\\
+E^{\text{indu}} &= \varrho\,\big(E^{\text{dir}}+E^{\text{ind}}\big), && \varrho=0{,}3477.
+\end{align}
+El empleo directo de obra se asigna a Construcción y el operativo al sector propio del proyecto (p.\,ej. 05T06 para \emph{upstream}, 07T08 para minería). Los componentes indirecto e inducido se distribuyen entre celdas con los coeficientes de empleo \emph{normalizados} $\boldsymbol{\ell}=\mathbf{e}/\mathbf{x}$ aplicados a $\mathbf{x}^{\text{ind}}$ y al producto inducido.
+
+\paragraph{Formalidad.} Sea $\boldsymbol{\phi}$ la tasa de formalidad por celda (registrado/total). La obra directa se toma formal; el resto se pondera por $\boldsymbol{\phi}$:
+\begin{equation}
+E^{\text{formal}} = E^{\text{dir,obra}} + \boldsymbol{\phi}\odot\big(E^{\text{dir,op}}+E^{\text{ind}}+E^{\text{indu}}\big),\qquad
+E^{\text{informal}}=E-E^{\text{formal}}.
+\end{equation}
+
+\section{Neutralidad del tipo de cambio}
+El tipo de cambio del año base $\tau$ (296 ARS/USD, 2023) sólo traduce el shock a la unidad de la matriz. Como el VA se reporta en dólares dividiendo por el \emph{mismo} $\tau$, éste se cancela:
+\begin{equation}
+\mathrm{VA}^{\USD}=\frac{\mathbf{v}^{\!\top}\mathbf{L}\,\mathbf{f}}{\tau}=\frac{\mathbf{v}^{\!\top}\mathbf{L}\,(\tau\,\mathbf{I}^{\USD})}{\tau}=\mathbf{v}^{\!\top}\mathbf{L}\,\mathbf{I}^{\USD}.
+\end{equation}
+El empleo, anclado en dólares, también es invariante a $\tau$. El supuesto sustantivo no es el nivel del dólar sino la \textbf{estructura productiva y de precios relativos de 2023}, que se asume constante hacia 2026.
+
+%\section{Resultados de referencia (primer año)}
+%Con la inversión comprometida de Año 1 de los 22 proyectos aprobados ($5.511$ millones de USD):
+
+%\begin{center}\small
+%\begin{tabular}{lr}
+%\toprule
+%\textbf{Agregado (primer año)} & \textbf{Valor} \\
+%\midrule
+%Producto (USD millones) & 9.022 \\
+%Valor agregado (USD millones) & 4.589 \\
+%Empleo total (puestos) & 11.382 \\
+%\quad directo & 6.055 \\
+%\quad indirecto & 2.391 \\
+%\quad inducido & 2.937 \\
+E%mpleo formal (puestos, 70\%) & 8.021 \\
+%Empleo informal (puestos, 30\%) & 3.361 \\
+%\bottomrule
+%\end{tabular}
+%\end{center}
+
+\paragraph{Banda de sensibilidad al multiplicador.} Como el empleo escala con $\mu$, se reporta la banda para $\mu\in[1{,}30;\,1{,}50]$:
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+$\mu$ & 1{,}30 & 1{,}3949 (central) & 1{,}50 \\
+\midrule
+Empleo total (puestos) & 10.609 & 11.382 & 12.241 \\
+\bottomrule
+\end{tabular}
+\end{center}
+El producto y el VA no dependen de $\mu$.
+
+%\paragraph{Distribución provincial (principales).} Río Negro concentra el mayor impacto (2.505 puestos; 84\% formal; 0{,}80\% del empleo provincial), seguida por Buenos Aires (2.020; 61\%; 0{,}03\%), San Juan (1.761; 77\%), Neuquén (1.332; 77\%) y Salta (1.152; 74\%). El detalle completo por las 24 jurisdicciones se acompaña en planilla.
+
+\appendix
+\section{Anexo A --- Parámetros de composición por tipo de proyecto}
+Participaciones del CAPEX $(\alpha,\beta,\gamma,\delta)$ e intensidades de empleo $(\lambda^o,\lambda^p)$ y formalidad operativa por categoría:
+\begin{center}\footnotesize
+\begin{tabular}{lcccccc c}
+\toprule
+Categoría & Obra $\alpha$ & Eq.\,nac.\,$\beta$ & Import.\,$\delta$ & Serv.\,$\gamma$ & $\lambda^o$ & $\lambda^p$ & Form.\,op. \\
+\midrule
+Transporte de gas (PG\_TRANS) & 0{,}52 & 0{,}13 & 0{,}25 & 0{,}10 & 1{,}0 & 0{,}2 & 0{,}94\\
+GNL & 0{,}15 & 0{,}05 & 0{,}72 & 0{,}08 & 0{,}15 & 0{,}1 & 0{,}94\\
+\emph{Upstream} (PG\_UP) & 0{,}28 & 0{,}12 & 0{,}38 & 0{,}22 & 0{,}3 & 0{,}2 & 0{,}94\\
+Minería metalífera & 0{,}30 & 0{,}05 & 0{,}29 & 0{,}36 & 0{,}8 & 0{,}3 & 0{,}66\\
+Minería (lixiviación) & 0{,}42 & 0{,}05 & 0{,}20 & 0{,}33 & 0{,}8 & 0{,}3 & 0{,}66\\
+Litio & 0{,}50 & 0{,}08 & 0{,}22 & 0{,}20 & 0{,}8 & 0{,}5 & 0{,}66\\
+Energía eléctrica & 0{,}30 & 0{,}10 & 0{,}55 & 0{,}05 & 0{,}8 & 0{,}2 & 0{,}74\\
+Siderurgia & 0{,}30 & 0{,}12 & 0{,}48 & 0{,}10 & 1{,}0 & 0{,}5 & 0{,}58\\
+Infraestructura & 0{,}62 & 0{,}08 & 0{,}20 & 0{,}10 & 1{,}2 & 0{,}3 & 0{,}50\\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent Las participaciones se calibran con estudios de factibilidad (NI 43-101) y estructura típica de CAPEX por tecnología. La fuga importada oscila entre 20\% (infraestructura, litio) y 72\% (GNL).
+
+\section{Anexo B --- Por qué no se usa el empleo bruto de la matriz}
+Aplicar los coeficientes de empleo a la producción propagada arroja, para este shock, \textbf{131.079 puestos} (directo+indirecto), frente a los \textbf{8.446} del empleo anclado: un factor de \textbf{15{,}5$\times$}. El $57\%$ de ese empleo bruto proviene de un único sector, Construcción, por tres razones:
+\begin{enumerate}
+\item \textbf{Promedio aplicado a lo marginal.} El coeficiente es la intensidad \emph{media}: el trabajador promedio de construcción en la matriz produce $4,77$ millones de pesos de VA al año ($\approxUSD 16.000$), típico de obra informal de baja productividad. La obra de un tren de GNL, un mineraloducto o el desarrollo de una mina la ejecutan empresas especializadas, intensivas en capital y de alta productividad; la intensidad media no aplica.
+\item \textbf{Dispersión de productividad.} El VA por puesto varía entre $1,96$ y $469$ millones de pesos según el sector ($\sim\!240\times$). El resultado se vuelve hipersensible a hacia dónde $\mathbf{L}$ rutea el producto, y lo rutea hacia los sectores más intensivos en trabajo (construcción, comercio, servicios personales).
+\item \textbf{Stock vs. flujo y regionalización.} El coeficiente refleja la dotación total que sostiene un nivel de producción (incluye trabajo fijo, \emph{overhead} e informal), no la contratación marginal; además, la matriz provincial se construye regionalizando la tabla nacional con cocientes de localización, mientras el empleo proviene de otra fuente, lo que introduce desajustes que se amplifican al invertir.
+\end{enumerate}
+\noindent Por ello $\mathbf{e}^{\top}\mathbf{L}\mathbf{f}$ se interpreta como \emph{cota superior} y el empleo directo se ancla a parámetros de ingeniería, con multiplicadores acotados para el indirecto e inducido.
+
+\vspace{4pt}
+\hrule
+\vspace{3pt}
+{\footnotesize\itshape Pedro Elosegui (IIEP-UBA), sobre Monitor RIGI--IIEP y MIP provincial 2023. Modelo de demanda (insumo--producto), equilibrio parcial: no incorpora precios relativos endógenos, restricciones de recursos, desplazamiento (\emph{crowding-out}) ni impacto fiscal o de divisas. Estima el primer año (fase de obra), no la producción futura de los yacimientos.}
+
+\end{document}
