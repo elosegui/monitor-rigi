@@ -79,7 +79,8 @@ footer a{color:#9fc0e6}
   <nav>
     <a href="#impacto">Impacto 1er año</a>
     <a href="#ranking">Provincias</a>
-    <a href="#sectores">Sectores</a>
+    <a href="#porsector">Sectores</a>
+    <a href="#sectores">Sector × prov.</a>
     <a href="#mapa">Mapa</a>
     <a href="#nota">Nota técnica</a>
   </nav>
@@ -124,16 +125,38 @@ footer a{color:#9fc0e6}
         <thead><tr>
           <th data-k="prov">Provincia</th>
           <th data-k="tot">Empleo</th>
+          <th data-k="dir">Directo</th>
+          <th data-k="ind">Indir.</th>
+          <th data-k="indu">Induc.</th>
           <th data-k="formal">Formal</th>
           <th data-k="informal">Inform.</th>
           <th data-k="pfor">% form.</th>
-          <th data-k="pstock">% empleo prov.</th>
+          <th data-k="pstock">% emp. prov.</th>
         </tr></thead>
         <tbody></tbody>
-        <tfoot><tr><td>TOTAL</td><td id="f_tot"></td><td id="f_for"></td><td id="f_inf"></td><td id="f_pf"></td><td></td></tr></tfoot>
+        <tfoot><tr><td>TOTAL</td><td id="f_tot"></td><td id="f_dir"></td><td id="f_ind"></td><td id="f_indu"></td><td id="f_for"></td><td id="f_inf"></td><td id="f_pf"></td><td></td></tr></tfoot>
       </table>
     </div>
   </div>
+</div></section>
+
+<section id="porsector"><div class="wrap">
+  <h2>Empleo por sector <span class="sub">Total del primer año y apertura en directo, indirecto e inducido (clic en los encabezados para ordenar)</span></h2>
+  <div style="overflow-x:auto">
+    <table id="tblSec">
+      <thead><tr>
+        <th data-k="sec">Sector</th>
+        <th data-k="tot">Empleo total</th>
+        <th data-k="dir">Directo</th>
+        <th data-k="ind">Indirecto</th>
+        <th data-k="indu">Inducido</th>
+        <th data-k="formal">Formal</th>
+      </tr></thead>
+      <tbody></tbody>
+      <tfoot><tr><td>TOTAL</td><td id="s_tot"></td><td id="s_dir"></td><td id="s_ind"></td><td id="s_indu"></td><td id="s_for"></td></tr></tfoot>
+    </table>
+  </div>
+  <p class="mut" style="margin-top:10px">La <b>obra directa</b> se concentra en construcción, minería y energía; el <b>indirecto</b> aparece en comercio, servicios y proveedores industriales; el <b>inducido</b> (gasto de los sueldos) llega sobre todo a comercio, otros servicios y agroalimentos.</p>
 </div></section>
 
 <section id="sectores"><div class="wrap">
@@ -204,16 +227,31 @@ footer a{color:#9fc0e6}
   const fmtP=x=>x.toFixed(2).replace('.',',')+'%';
   function render(){
     const d=[...PROV].sort((a,b)=>(a[sortK]<b[sortK]?-1:a[sortK]>b[sortK]?1:0)*sortDir);
-    tb.innerHTML=d.map(r=>`<tr><td>${r.prov}</td><td>${nf(r.tot)}</td><td>${nf(r.formal)}</td><td>${nf(r.informal)}</td><td>${r.pfor}%</td><td>${fmtP(r.pstock)}</td></tr>`).join('');
+    tb.innerHTML=d.map(r=>`<tr><td>${r.prov}</td><td>${nf(r.tot)}</td><td>${nf(r.dir)}</td><td>${nf(r.ind)}</td><td>${nf(r.indu)}</td><td>${nf(r.formal)}</td><td>${nf(r.informal)}</td><td>${r.pfor}%</td><td>${fmtP(r.pstock)}</td></tr>`).join('');
   }
   document.querySelectorAll('#tbl thead th').forEach(th=>th.onclick=()=>{
     const k=th.dataset.k; if(k===sortK)sortDir*=-1; else{sortK=k;sortDir=(k==='prov')?1:-1;} render();
   });
   render();
   // totales
-  const T=PROV.reduce((a,r)=>({t:a.t+r.tot,f:a.f+r.formal,i:a.i+r.informal}),{t:0,f:0,i:0});
-  set('f_tot',nf(Math.round(T.t))); set('f_for',nf(Math.round(T.f))); set('f_inf',nf(Math.round(T.i)));
-  set('f_pf',Math.round(100*T.f/T.t)+'%');
+  const T=PROV.reduce((a,r)=>({t:a.t+r.tot,d:a.d+r.dir,n:a.n+r.ind,u:a.u+r.indu,f:a.f+r.formal,i:a.i+r.informal}),{t:0,d:0,n:0,u:0,f:0,i:0});
+  set('f_tot',nf(Math.round(T.t))); set('f_dir',nf(Math.round(T.d))); set('f_ind',nf(Math.round(T.n))); set('f_indu',nf(Math.round(T.u)));
+  set('f_for',nf(Math.round(T.f))); set('f_inf',nf(Math.round(T.i))); set('f_pf',Math.round(100*T.f/T.t)+'%');
+  // empleo por sector (total + dir/ind/indu)
+  if(typeof SECTOR!=='undefined'){
+    const tbs=document.querySelector('#tblSec tbody');
+    let sK='tot',sD=-1;
+    const renderS=()=>{
+      const d=[...SECTOR].sort((a,b)=>(a[sK]<b[sK]?-1:a[sK]>b[sK]?1:0)*sD);
+      tbs.innerHTML=d.map(r=>`<tr><td>${r.sec}</td><td>${nf(r.tot)}</td><td>${nf(r.dir)}</td><td>${nf(r.ind)}</td><td>${nf(r.indu)}</td><td>${nf(r.formal)}</td></tr>`).join('');
+    };
+    document.querySelectorAll('#tblSec thead th').forEach(th=>th.onclick=()=>{
+      const k=th.dataset.k; if(k===sK)sD*=-1; else{sK=k;sD=(k==='sec')?1:-1;} renderS();
+    });
+    renderS();
+    const S=SECTOR.reduce((a,r)=>({t:a.t+r.tot,d:a.d+r.dir,n:a.n+r.ind,u:a.u+r.indu,f:a.f+r.formal}),{t:0,d:0,n:0,u:0,f:0});
+    set('s_tot',nf(S.t)); set('s_dir',nf(S.d)); set('s_ind',nf(S.n)); set('s_indu',nf(S.u)); set('s_for',nf(S.f));
+  }
   // apertura sectorial (top 5 por provincia, orden por empleo total)
   const sg=$('secGrid');
   if(sg && typeof PROVSEC!=='undefined'){
