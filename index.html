@@ -61,6 +61,15 @@ footer{background:#17324f;color:#cdd9e8;padding:26px 0;font-size:.86rem}
 footer a{color:#9fc0e6}
 .mut{color:var(--muted);font-size:.9rem}
 .chartbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.secgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.secgrid details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:0 12px}
+.secgrid summary{cursor:pointer;padding:11px 2px;font-weight:600;color:var(--navy);list-style:none;display:flex;justify-content:space-between;align-items:center}
+.secgrid summary::-webkit-details-marker{display:none}
+.secgrid summary .tot{font-weight:400;color:var(--muted);font-size:.85rem}
+.secgrid table{border:none;margin:2px 0 12px;font-size:.84rem}
+.secgrid th,.secgrid td{padding:5px 6px;border-bottom:1px solid #eef1f5}
+.secgrid thead th{background:#eef3f9;color:var(--navy)}
+@media(max-width:820px){.secgrid{grid-template-columns:1fr}}
 @media(max-width:820px){.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -70,6 +79,7 @@ footer a{color:#9fc0e6}
   <nav>
     <a href="#impacto">Impacto 1er año</a>
     <a href="#ranking">Provincias</a>
+    <a href="#sectores">Sectores</a>
     <a href="#mapa">Mapa</a>
     <a href="#nota">Nota técnica</a>
   </nav>
@@ -124,6 +134,12 @@ footer a{color:#9fc0e6}
       </table>
     </div>
   </div>
+</div></section>
+
+<section id="sectores"><div class="wrap">
+  <h2>Apertura sectorial por provincia <span class="sub">Los 5 sectores que más empleo reciben en cada provincia (clic para desplegar)</span></h2>
+  <p class="mut" style="margin-bottom:12px">La inversión es minera y petrolera, pero el empleo del primer año se concentra en <b>construcción</b> (fase de obra) y, donde no hay proyecto propio, en <b>comercio y servicios</b> por el efecto de derrame.</p>
+  <div id="secGrid" class="secgrid"></div>
 </div></section>
 
 <section id="mapa"><div class="wrap">
@@ -198,6 +214,17 @@ footer a{color:#9fc0e6}
   const T=PROV.reduce((a,r)=>({t:a.t+r.tot,f:a.f+r.formal,i:a.i+r.informal}),{t:0,f:0,i:0});
   set('f_tot',nf(Math.round(T.t))); set('f_for',nf(Math.round(T.f))); set('f_inf',nf(Math.round(T.i)));
   set('f_pf',Math.round(100*T.f/T.t)+'%');
+  // apertura sectorial (top 5 por provincia, orden por empleo total)
+  const sg=$('secGrid');
+  if(sg && typeof PROVSEC!=='undefined'){
+    const orden=[...PROV].sort((a,b)=>b.tot-a.tot).map(r=>r.prov).filter(p=>PROVSEC[p]&&PROVSEC[p].length);
+    sg.innerHTML=orden.map((p,i)=>{
+      const rows=PROVSEC[p].map(s=>`<tr><td>${s.sec}</td><td style="text-align:right">${nf(s.emp)}</td><td style="text-align:right">${s.pct}%</td><td style="text-align:right">${nf(s.formal)}</td></tr>`).join('');
+      const tot=(PROV.find(r=>r.prov===p)||{}).tot||0;
+      return `<details${i<3?' open':''}><summary>${p}<span class="tot">${nf(tot)} empleos</span></summary>
+        <table><thead><tr><th>Sector</th><th style="text-align:right">Empleo</th><th style="text-align:right">%</th><th style="text-align:right">Formal</th></tr></thead><tbody>${rows}</tbody></table></details>`;
+    }).join('');
+  }
   // bar chart top 12
   const top=[...PROV].sort((a,b)=>b.tot-a.tot).slice(0,12);
   new Chart($('barchart'),{type:'bar',data:{labels:top.map(r=>r.prov),
