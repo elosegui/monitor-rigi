@@ -175,19 +175,12 @@ footer a{color:#9fc0e6}
   <h2>Nota técnica <span class="sub">Cómo se calcula el impacto</span></h2>
   <div class="grid2">
     <div class="note">
-      <p><span class="tag">Modelo</span> MIP Provincial Argentina 2023 (Michelena, Herrera Gómez y Elosegui) — 24 provincias × 20 sectores. Efectos directos, indirectos e inducidos.</p>
-      <ul>
-        <li><b>Shock:</b> inversión comprometida de Año 1 (IIEP), descompuesta por proyecto en obra civil, equipo nacional, servicios e importado (este último se fuga).</li>
-        <li><b>Propagación:</b> inversa de Leontief L=(I−A)⁻¹; el VA se reporta en dólares, por lo que el tipo de cambio se cancela.</li>
-        <li><b>Empleo:</b> anclado a parámetros de obra (el empleo bruto de la matriz sobreestima ~15×); indirecto e inducido con multiplicadores acotados y banda de sensibilidad.</li>
-        <li><b>Inducido:</b> localizado con la matriz de comercio interprovincial; consumo de hogares según ENGHo.</li>
-        <li><b>Formalidad:</b> ajustada por provincia y sector (empleo registrado / total).</li>
-      </ul>
+      <p><span class="tag">Modelo</span> Se utiliza una matriz insumo-producto provincial (MIP) para estimar los multiplicadores por sector y provincia. A partir de la matriz se obtienen los multiplicadores Tipo I; luego se abre el valor agregado y se incorpora el consumo de los hogares para obtener los Tipo II. Con esos multiplicadores, imputados según el tipo de proyecto a los sectores donde impacta la inversión, se calculan los efectos directos (los consignados en cada proyecto), indirectos (Tipo I) e inducidos a través del consumo (Tipo II). El resultado es el impacto agregado de los proyectos sobre el valor bruto de producción, el valor agregado y el empleo, abierto por sector y provincia.</p>
       <a class="btn" href="assets/nota_metodologica_RIGI.pdf" target="_blank">Descargar nota metodológica (PDF)</a>
     </div>
     <div class="note">
       <p class="mut"><b>Alcance y límites.</b> Es un ejercicio de demanda en equilibrio parcial: supone estructura productiva y precios relativos de 2023, oferta elástica y ausencia de desplazamiento (<i>crowding-out</i>). Estima el primer año (fase de obra), no la producción futura ni el impacto fiscal o de divisas. Los proyectos en evaluación se consideran potencial, no impacto corriente.</p>
-      <p class="mut"><b>Fuentes.</b> Monitor RIGI–IIEP (inversión comprometida por proyecto); <b>MIP Provincial Argentina 2023</b> (Michelena, G., Herrera Gómez, M. y Elosegui, P.); ENGHo 2017-18; matriz de comercio interprovincial; tasas de formalidad por provincia y sector.</p>
+      <p class="mut"><b>Fuentes.</b> Monitor RIGI–IIEP (inversión comprometida por proyecto); <b>MIP Provincial Argentina 2023</b>; ENGHo 2017-18; matriz de comercio interprovincial; tasas de formalidad por provincia y sector.</p>
     </div>
   </div>
 </div></section>
